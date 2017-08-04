@@ -255,19 +255,19 @@ $(document).ready(function (){
 function drawTable(oJson){
 	var i=0;
 	$.each(oJson, function(){
-		console.log("i = " + i);
-		
+// 		console.log("i = " + i);
+		//將<tr><td>xxx</td></tr>串接起來
 		var tr = "<tr>";
 		tr = tr + addTableRow(oJson[i].ecno, oJson[i].type, oJson[i].price);
 		tr = tr + "</tr>";
 		i++;
-		
+		//將串接好的<tr/>接在<table>裡面
 		$("#ecsTable").append(tr);
 	});
 
 }
 
-function addTableRow(ecno, type, price){
+function addTableRow(ecno, type, price){ //<td>的內容
 	var td = "";
 	td = td + "<td>" + ecno + "</td>";
 	td = td + "<td>" + type + "</td>";
