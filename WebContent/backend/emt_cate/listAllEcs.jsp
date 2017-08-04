@@ -208,9 +208,7 @@ var Msg ='<%=request.getAttribute("inserted")%>';
 							value="新增裝備"></td>
 						<td><FORM METHOD="post"
 								ACTION="<%=request.getContextPath()%>/backend/emt_cate/listAllEcs.jsp">
-								<input type="submit" name="serchAllEcs" value="蒐尋全部裝備類別"
-									class="btn btn-default" role="button"> <input
-									type="hidden" name="action" value="listAllEcs">
+								<input type="submit" name="serchAllEcs" value="蒐尋全部裝備類別" class="btn btn-default" role="button"> 
 							</FORM></td>
 						<td><input type="button" name="insert" id="addEc"
 							class="btn btn-default" role="button"
@@ -226,7 +224,7 @@ var Msg ='<%=request.getAttribute("inserted")%>';
 			</div>
 
 			<table
-				class="table table-hover table-condensed table-striped table-bordered">
+				class="table table-hover table-condensed table-striped table-bordered" id = "ecsTable">
 				<thead>
 					<td>裝備類別編號</td>
 					<td>類型</td>
@@ -234,43 +232,59 @@ var Msg ='<%=request.getAttribute("inserted")%>';
 					<td>圖示</td>
 					<td>修改/刪除</td>
 				</thead>
-
-				<%@ include file="pages/page1.file"%>
-				<c:forEach var="ecVO" items="${list}" begin="<%=pageIndex%>"
-					end="<%=pageIndex+rowsPerPage-1%>">
-
-					<tr
-						${(ecVO.ecno==param.ecno) ? 'style="background-color:#84d8d1;"':''}>
-						<td>${ecVO.ecno}</td>
-						<td>${ecVO.type}</td>
-						<td>${ecVO.price}</td>
-						<td><img id="motpic"
-							src="<%=request.getContextPath()%>/backend/emt_cate/ecReader.do?ecno=${ecVO.ecno}"></td>
-						<td>
-							<FORM METHOD="post" style="display: inline;" ACTION="ec.do">
-								<input type="submit" name="fix" value="修改"
-									class="btn btn-default" role="button"> <input
-									type="hidden" name="ecno" value="${ecVO.ecno}"> <input
-									type="hidden" name="requestURL"
-									value="<%=request.getServletPath()%>"> <input
-									type="hidden" name="action" value="getOne_For_Update">
-							</FORM>
-
-							<FORM METHOD="post" style="display: inline;" ACTION="ec.do">
-								<input type="submit" name="del" value="刪除"
-									class="btn btn-default" role="button"> <input
-									type="hidden" name="ecno" value="${ecVO.ecno}"> <input
-									type="hidden" name="requestURL"
-									value="<%=request.getServletPath()%>"> <input
-									type="hidden" name="action" value="delete">
-							</FORM>
-						</td>
-					</tr>
-				</c:forEach>
+				<!-- 這裡用ajax顯示 -->
 			</table>
-			<%@ include file="pages/page2.file"%>
 		</div>
 	</div>
 </body>
 
+<script type="text/javascript">
+$(document).ready(function (){
+	$.ajax({
+		type:"POST", //post or get
+		url:"ec.do", //等於action="ec.do"
+		data:{action:"listAllEcs"}, //等於<input type='hidden' name='action' value='listAllEcs'>
+		dataType:"json",
+		success:function (data){ //如果成功就執行drawTable(data)
+			drawTable(data);
+		},
+		error:function(){alert("error")} //有錯誤：跳窗:error
+	})
+})
+
+function drawTable(oJson){
+	var i=0;
+	$.each(oJson, function(){
+		console.log("i = " + i);
+		
+		var tr = "<tr>";
+		tr = tr + addTableRow(oJson[i].ecno, oJson[i].type, oJson[i].price);
+		tr = tr + "</tr>";
+		i++;
+		
+		$("#ecsTable").append(tr);
+	});
+
+}
+
+function addTableRow(ecno, type, price){
+	var td = "";
+	td = td + "<td>" + ecno + "</td>";
+	td = td + "<td>" + type + "</td>";
+	td = td + "<td>" + price + "</td>";
+	td = td + "<td><img id='ecpic' src='${pageContext.request.contextPath}/backend/emt_cate/ecReader.do?ecno=" + ecno + "'></td>";
+	td = td + "<td><FORM METHOD='post' style='display: inline;' ACTION='ec.do'>"+
+					"<input type='submit' name='fix' value='修改' class='btn btn-default' role='button'>"+
+					"<input type='hidden' name='ecno' value='" + ecno + "'>"+
+					"<input type='hidden' name='requestURL' value='${pageContext.request.servletPath}'>"+
+					"<input type='hidden' name='action' value='getOne_For_Update'></FORM>"+
+					
+					"<FORM METHOD='post' style='display: inline;' ACTION='ec.do'>"+
+					"<input type='submit' name='del' value='刪除'class='btn btn-default' role='button'>"+
+					"<input type='hidden' name='ecno' value='" + ecno + "'>"+
+					"<input type='hidden' name='requestURL' value='${pageContext.request.servletPath}'>"+
+					"<input type='hidden' name='action' value='delete'></FORM></td>"
+	return td;
+}
+</script>
 </html>
